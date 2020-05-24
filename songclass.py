@@ -10,6 +10,6 @@ class Song:
     def encode(self):
         return self.__dict__
     def __str__(self):
-        return sname +" by "+ sartist+" of "+albname+" by "+albartist
+        return self.sname +" by "+ self.sartist+" of "+self.albname+" by "+self.albartist
 
         
