@@ -19,7 +19,7 @@ import youtube_dl
 from urllib.request import urlopen
 from youtube_search import YoutubeSearch
 import shutil
-
+from os import path
 
 
 client_credentials_manager = SpotifyClientCredentials(client_id='2528e9e7f4fa492aaecfc9e07c18f444',
@@ -31,6 +31,7 @@ class MainPage(QMainWindow, Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
         self.tableClick()
+        self.url_error_label.setText("")
         self.url_load_button.clicked.connect(self.url_loading_button_click)
         self.remove_from_table_button.clicked.connect(self.remove_button_click)
         self.url_input.returnPressed.connect(self.url_load_button.click)
@@ -41,6 +42,8 @@ class MainPage(QMainWindow, Ui_MainWindow):
             '<a href="https://github.com/AnishLaddha/Spotify2Apple">source code</a>'
         )
         self.video_table.setHorizontalHeaderLabels(["Song", "Artist(s)", "Album", "Album Artist(s)", "Cover Art"])
+        self.video_table.setHorizontalHeaderLabels(["Song", "Artist(s)", "Album", "Album Artist(s)", "Cover Art"])
+
 
 
     def set_credit_url(self, url_str):
@@ -53,7 +56,7 @@ class MainPage(QMainWindow, Ui_MainWindow):
 
     def remove_button_click(self):
         indexes = self.video_table.selectedIndexes()
-        for index in sorted(indexes):
+        for index in (indexes):
             self.video_table.removeRow(index.row())
         
 
@@ -78,23 +81,24 @@ class MainPage(QMainWindow, Ui_MainWindow):
             self.video_table.setItem(index, 3, QTableWidgetItem(', '.join(i.albartist)))
             self.video_table.setItem(index, 4, QTableWidgetItem(i.coverart))
             index = index +1
-            
+        self.video_table.setHorizontalHeaderLabels(["Song", "Artist(s)", "Album", "Album Artist(s)", "Cover Art"])
         
 
 
     def cell_was_clicked(self):
         for currentQTableWidgetItem in self.video_table.selectedItems():
-            print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
+            #print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
             item = self.video_table.item(currentQTableWidgetItem.row(), 4)
             url = str(item.text())
-            print(url)
+            #print(url)
             self.loadArtwork(url)
         
         
     def on_click(self):
-        print("\n")
+        #print("\n")
         for currentQTableWidgetItem in self.video_table.selectedItems():
-            print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
+            pass
+
    
     def loadArtwork(self, url):
         data = urllib.request.urlopen(url).read()
@@ -129,31 +133,38 @@ class MainPage(QMainWindow, Ui_MainWindow):
             tracklist.append(newsong)
         return tracklist
     
+
     
-    
+    ##
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     def download_button_click(self):
-        mfolder = self.foldercheck()
-        
+        space = """
+        ...............................................................
+        ...............................................................
+        ...............................................................
+        ...............................................................
+          """
         songlist = self.load_tracks_from_table()
         for song in songlist:
-            if mfolder == True:
-                scheck = self.filecheck(song.sname, song.sartist, song.albname)
-            else:
-                scheck = self.fcheck2(song.sname)
-            if scheck == False:
+            if self.filecheck(song.sname, song.albartist, song.albname) == False:
+                print(space)
+                print(song.sname)
+                print(space)
                 yt_link = self.youtubelink(song.sname, song.sartist)
                 self.downloader(yt_link, song.sname)
                 self.convertor(song.sname)
                 self.tagger(song, song.sname)
+                self.filemove()
+
                 
-                if mfolder == True:
-                    self.filemove(song.sname)
-                
-        
-        
-        
-        
-    
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    ##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     
     def load_tracks_from_table(self):
         model = self.video_table.model()
@@ -175,25 +186,9 @@ class MainPage(QMainWindow, Ui_MainWindow):
         return tlist
         
     
-    def foldercheck(self):
-        base_dir = "~/Music"
-        folder = os.path.expanduser(base_dir)
-        check = os.path.isdir(folder)
-        if check == True:
-            base_dir= base_dir + "/iTunes"
-            folder = os.path.expanduser(base_dir)
-            check = os.path.isdir(folder)
-            if check == True:
-                base_dir= base_dir + "/iTunes Media/Music"
-                folder = os.path.expanduser(base_dir)
-                check = os.path.isdir(folder)
-                if check == True:
-                    return True
-        return False
-    
     
     def filecheck(self,song, artist, album):
-        base_dir = "~/Music/itunes/iTunes Media/Music"
+        base_dir = "~/Music/Music/Media.localized"
         base_dir= base_dir + "/" + artist + "/"+album +"/" + song +".mp3"
         return os.path.isfile(os.path.expanduser(base_dir))
     def fcheck2(self,song):
@@ -201,12 +196,16 @@ class MainPage(QMainWindow, Ui_MainWindow):
             return True
         else:
             return False
-    def filemove(self, song):
-        check = os.path.isfile(song+".mp3")
-        path_dir = '~/Music/iTunes/iTunes\ Media/Automatically\ Add\ to\ Music.localized/"'+song+'.mp3"'
-        if check == True:
-            chdir = str(os.getcwd())
-            shutil.move(chdir+"/"+song+".mp3", os.path.expanduser("~")+'/Music/iTunes/iTunes Media/Automatically Add to Music.localized/'+song+'.mp3')
+    def filemove(self):
+        dir_path = os.path.dirname(os.path.realpath(__file__)) 
+  
+        for root, dirs, files in os.walk(dir_path): 
+            for file in files:  
+                if file.endswith('.mp3'): 
+                    print(str(file))
+
+                    chdir = str(os.getcwd())
+                    shutil.move(chdir+"/"+str(file), os.path.expanduser("~")+'/Music/Music/Media.localized/Automatically Add to Music.localized/'+str(file))
             
 #mv -f "Ridin' Solo.mp3" ~/Music/iTunes/iTunes\ Media/Automatically\ Add\ to\ Music.localized"
     def youtubelink(self, song, artist):
@@ -226,15 +225,16 @@ class MainPage(QMainWindow, Ui_MainWindow):
         return searchid
     
     def convertor(self, name):
-        print('ffmpeg -y -i "'+name+'".m4a -acodec libmp3lame -ab 256k "'+name+'.mp3"'+'&& rm "'+name+'.m4a"')
-        os.system('ffmpeg -y -i "'+name+'".m4a -acodec libmp3lame -ab 256k "'+name+'.mp3"'+'&& rm "'+name+'.m4a"')
+        if (path.exists(name+".m4a") == True):
+            print('ffmpeg -y -i "'+name+'".m4a -acodec libmp3lame -ab 256k "'+name+'.mp3"'+'&& rm "'+name+'.m4a"')
+            os.system('ffmpeg -y -i "'+name+'".m4a -acodec libmp3lame -ab 256k "'+name+'.mp3"'+'&& rm "'+name+'.m4a"')
     #'fmpeg -i "'+name+'".m4a -acodec libmp3lame -ab 256k '+name+'.mp3"'
     def downloader(self, url, name):
         ydl_opts = {
             'outtmpl': '',
             'format': 'm4a',
-            #'quiet': True,
-            'verbose': True,
+            'quiet': True,
+            
         }
         ydl_opts['outtmpl']= name + ".%(ext)s"
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -246,31 +246,31 @@ class MainPage(QMainWindow, Ui_MainWindow):
                 except:
                     print("not found")
     def tagger(self, songdata, file):
+        if (path.exists(file+".mp3") == True):
+            songname = songdata.sname
 
-        songname = songdata.sname
+            songartstr = songdata.sartist
+            albumname = songdata.albname
 
-        songartstr = songdata.sartist
-        albumname = songdata.albname
+            albartstr = songdata.albartist
+            
 
-        albartstr = songdata.albartist
+            coverarturl = songdata.coverart
         
+            audiofile = eyed3.load(file+".mp3")
 
-        coverarturl = songdata.coverart
-    
-        audiofile = eyed3.load(file+".mp3")
+            audiofile.tag.artist = songartstr
+            audiofile.tag.album = albumname
+            audiofile.tag.album_artist = albartstr
+            audiofile.tag.title = songname
 
-        audiofile.tag.artist = songartstr
-        audiofile.tag.album = albumname
-        audiofile.tag.album_artist = albartstr
-        audiofile.tag.title = songname
+            response = urlopen(coverarturl)
+            imagedata = response.read()
 
-        response = urlopen(coverarturl)
-        imagedata = response.read()
+            audiofile.tag.images.remove(u'')
+            audiofile.tag.images.set(3, imagedata , "image/jpeg" ,u"Description")
 
-        audiofile.tag.images.remove(u'')
-        audiofile.tag.images.set(3, imagedata , "image/jpeg" ,u"Description")
-
-        audiofile.tag.save()    
+            audiofile.tag.save()    
 
 
 
