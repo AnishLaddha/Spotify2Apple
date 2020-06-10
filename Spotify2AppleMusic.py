@@ -68,6 +68,8 @@ class MainPage(QMainWindow, Ui_MainWindow):
             if urldict[1] == "":
                 urldict = urlstr.rsplit('/',2)
             url = urldict[1]
+            split_url = url.split("?",1)
+            url = split_url[0]
            # print(url)
         results = sp.playlist_tracks(url)
         tracks = results['items']
